@@ -1,0 +1,141 @@
+🔑 Core Requirements
+Authentication & Roles
+
+Two roles: Admin and Team.
+
+Admin can create/manage Team Members.
+
+Both Admin & Team can add transactions, but only Admin approval updates balances.
+
+Auth: simple email/password (JWT sessions).
+
+Database Models
+
+Using PostgreSQL with Drizzle ORM:
+
+User: id, name, email, password_hash, role (admin/team)
+
+Company: id, name, description
+
+BankAccount: id, account_name, initial_balance, current_balance, created_by (user_id)
+
+Category: id, name, description (global across all companies)
+
+Client: id, name, email, phone, company_name, notes
+
+Transaction:
+
+id, amount, currency (default = INR, option = USD)
+
+conversion_rate (if currency != INR)
+
+converted_inr_amount (always stored in INR)
+
+type (income/expense/transfer)
+
+category_id (global)
+
+client_id (optional)
+
+company_id (required)
+
+from_bank_account_id, to_bank_account_id (for transfers)
+
+user_id (creator)
+
+status (pending/approved/rejected)
+
+description, created_at
+
+Transaction Workflow
+
+Team Member submits → status = pending.
+
+Admin approves/rejects → only approved ones affect balances.
+
+Income → increases bank account balance (in INR).
+
+Expense → decreases bank account balance (in INR).
+
+Transfer → deduct from “From Account” and add to “To Account” after approval.
+
+Multi-currency:
+
+Default: INR.
+
+If USD chosen: enter conversion rate at that time (e.g., 1 USD = 81 INR).
+
+Store both original amount in USD and converted INR amount.
+
+Balances & reports always calculated in INR.
+
+📊 Features / Modules
+Dashboard
+
+Admin: pending approvals, balances of all bank accounts, totals, recent activity.
+
+Team: transactions they submitted & statuses.
+
+Transactions
+
+Add/Edit/Delete incomes, expenses, transfers.
+
+Select company, category, client, bank account(s).
+
+Currency selector (INR default / USD with conversion).
+
+Approvals (Admin only)
+
+Approve/reject pending transactions.
+
+Bank Accounts
+
+Global accounts (not tied to company).
+
+Track balances after approved transactions.
+
+Clients
+
+Global clients (not tied to company).
+
+Linked to transactions.
+
+Categories
+
+Global categories (shared across all companies).
+
+Companies
+
+Transactions are tied to a company.
+
+Company selection while creating transactions.
+
+Reports & P&L
+
+Company-wise Profit & Loss:
+
+Show total income, total expenses, and net profit in INR.
+
+Overall Profit & Loss:
+
+Aggregate across all companies (totals in INR).
+
+Filters: date range, category, client.
+
+Visuals with Chart.js (via React wrapper):
+
+Monthly Income vs Expense trend (per company & overall).
+
+Category-wise expense breakdown.
+
+Client-wise income contribution.
+
+Bank-to-bank transfers summary.
+
+Extras
+
+Export approved transactions as CSV.
+
+Notifications (basic UI alerts) when Admin approves/rejects transactions.
+
+Responsive, modern UI using Shadcn + Tailwind.
