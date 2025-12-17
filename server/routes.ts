@@ -6,7 +6,6 @@ import { hashPassword, verifyPassword, generateToken, authenticateToken, require
 import { insertUserSchema, insertCompanySchema, insertBankAccountSchema, insertCategorySchema, insertClientSchema, insertTransactionSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  app.use(cookieParser());
 
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -27,11 +26,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const token = generateToken(user.id, user.email, user.name, user.role);
+      const isProduction = process.env.NODE_ENV === "production";
+      const isSecure = isProduction ? (req.protocol === "https" || req.get("x-forwarded-proto") === "https") : false;
       res.cookie("auth_token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: isSecure,
+        sameSite: isProduction ? "strict" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
       });
 
       res.json({
@@ -66,11 +68,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = generateToken(user.id, user.email, user.name, user.role);
+      const isProduction = process.env.NODE_ENV === "production";
+      const isSecure = isProduction ? (req.protocol === "https" || req.get("x-forwarded-proto") === "https") : false;
       res.cookie("auth_token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: isSecure,
+        sameSite: isProduction ? "strict" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
       });
 
       res.json({

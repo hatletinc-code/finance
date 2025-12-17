@@ -24,13 +24,22 @@ import TeamMembers from "./pages/TeamMembers";
 
 function ProtectedRoute({ component: Component, ...rest }: any) {
   const user = useAuth((state) => state.user);
+  const isLoading = useAuth((state) => state.isLoading);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       setLocation("/login");
     }
-  }, [user, setLocation]);
+  }, [user, isLoading, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;
@@ -85,15 +94,21 @@ function App() {
 
   const user = useAuth((state) => state.user);
   const setUser = useAuth((state) => state.setUser);
+  const setLoading = useAuth((state) => state.setLoading);
+  const isLoading = useAuth((state) => state.isLoading);
   const [location] = useLocation();
 
   useEffect(() => {
-    getCurrentUser().then((currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-      }
-    });
-  }, [setUser]);
+    getCurrentUser()
+      .then((currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [setUser, setLoading]);
 
   const isLoginPage = location === "/login";
 

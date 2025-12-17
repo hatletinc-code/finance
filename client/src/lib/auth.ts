@@ -9,13 +9,17 @@ interface User {
 
 interface AuthStore {
   user: User | null;
+  isLoading: boolean;
   setUser: (user: User | null) => void;
+  setLoading: (loading: boolean) => void;
   logout: () => void;
 }
 
 export const useAuth = create<AuthStore>((set) => ({
   user: null,
+  isLoading: true,
   setUser: (user) => set({ user }),
+  setLoading: (loading) => set({ isLoading: loading }),
   logout: () => set({ user: null }),
 }));
 
